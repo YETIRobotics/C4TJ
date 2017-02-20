@@ -4,13 +4,12 @@
 
 // Constructors ////////////////////////////////////////////////////////////////
 
+
 Robot::Robot()
 
 {
 	Usb.Init();
-
-	mc1.init(_mc1_INA1, _mc1_INB1, _mc1_EN1DIAG1, _mc1_CS1, _mc1_INA2, _mc1_INB2, _mc1_EN2DIAG2, _mc1_CS2, _mc1_PWM1, _mc1_PWM2);
-	mc2.init(_mc2_INA1, _mc2_INB1, _mc2_EN1DIAG1, _mc2_CS1, _mc2_INA2, _mc2_INB2, _mc2_EN2DIAG2, _mc2_CS2, _mc2_PWM1, _mc2_PWM2);
+	mc.init();
 
 	/*
 	encDriveRight.init(_drive_Right_encInt, _drive_Right_encDig);
@@ -29,8 +28,7 @@ Robot::Robot()
 	DriveRightRearSpeed = 0;
 	DriveLeftFrontSpeed = 0;
 	DriveLeftRearSpeed = 0;
-	LiftLeftSpeed = 0;
-	LiftRightSpeed = 0;
+	LiftSpeed = 0;
 	ClawSpeed = 0;
 
 	//Expect 0-255
@@ -39,28 +37,15 @@ Robot::Robot()
 	LEDGreen = 0;
 
 	TorqueLimitDrive = 0;
-	TorqueLimitLift = 0;
+	TorqueLimitLift = 0; 
+
+	LiftPotVal = 0;
 
 }
 
 void Robot::init(){
 
-	serIntake.attach(_intake_PWM);
-	serIntake.write(90);
-
-	serArm.attach(_arm_PWM);
-	serArm.write(90);
-
-	serClaw.attach(_claw_PWM);
-	serClaw.write(90);
-
-	pinMode(_ledGrn, OUTPUT);
-	pinMode(_ledBlu, OUTPUT);
-	pinMode(_ledRed, OUTPUT);
-
-	analogWrite(_ledRed, LEDRed);
-	analogWrite(_ledGrn, LEDGreen);
-	analogWrite(_ledBlu, LEDBlue);
+	pinMode(_potPin, INPUT);
 }
 
 void Robot::Read(){
@@ -76,13 +61,7 @@ void Robot::Read(){
 	_leftLimitSwitch = digitalRead(_lift_Left_Limit);
 	_rightLimitSwitch = digitalRead(_lift_Right_Limit);
 	*/
-
-	_driveLeftRearCurrent = mc2.getM2CurrentMilliamps();
-	_driveLeftFrontCurrent = mc2.getM1CurrentMilliamps();
-	_driveRightRearCurrent = mc1.getM2CurrentMilliamps();
-	_driveRightFrontCurrent = mc1.getM1CurrentMilliamps();
-
-
+	LiftPotVal = analogRead(_potPin);
 
 
 
@@ -140,18 +119,22 @@ void Robot::Write(){
 	if(DriveRightFrontSpeed > 400)
 	DriveRightFrontSpeed = 400;
 
+	DriveRightFrontSpeed = map(DriveRightFrontSpeed, -400, 400, -255, 255);
+
 	if(DriveRightRearSpeed < -400)
 	DriveRightRearSpeed = -400;
 	if(DriveRightRearSpeed > 400)
 	DriveRightRearSpeed = 400;
 
+	DriveRightRearSpeed = map(DriveRightRearSpeed, -400, 400, -255, 255);
+
 	prevDriveRightFrontSpeed = torqueLimit(prevDriveRightFrontSpeed, DriveRightFrontSpeed, TorqueLimitDrive);
 
-	mc1.setM1Speed(prevDriveRightFrontSpeed);
+	mc.setMotorSpeed(1, prevDriveRightFrontSpeed);
 
 	prevDriveRightRearSpeed = torqueLimit(prevDriveRightRearSpeed, DriveRightRearSpeed, TorqueLimitDrive);
 
-	mc1.setM2Speed(prevDriveRightRearSpeed);
+	mc.setMotorSpeed(0, prevDriveRightRearSpeed * -1);
 
 	//Serial.print(DriveRightSpeed);
 	//Serial.print("\t");
@@ -162,61 +145,67 @@ void Robot::Write(){
 	if(DriveLeftFrontSpeed > 400)
 	DriveLeftFrontSpeed = 400;
 
+	DriveLeftFrontSpeed = map(DriveLeftFrontSpeed, -400, 400, -255, 255);
+
 	if(DriveLeftRearSpeed < -400)
 	DriveLeftRearSpeed = -400;
 	if(DriveLeftRearSpeed > 400)
 	DriveLeftRearSpeed = 400;
 
+	DriveLeftRearSpeed = map(DriveLeftRearSpeed, -400, 400, -255, 255);
+
 	prevDriveLeftFrontSpeed = torqueLimit(prevDriveLeftFrontSpeed, DriveLeftFrontSpeed, TorqueLimitDrive);
 
-	mc2.setM1Speed(prevDriveLeftFrontSpeed);
+	mc.setMotorSpeed(4, prevDriveLeftFrontSpeed * -1);
 
 	prevDriveLeftRearSpeed = torqueLimit(prevDriveLeftRearSpeed, DriveLeftRearSpeed, TorqueLimitDrive);
 
-	mc2.setM2Speed(prevDriveLeftRearSpeed);
+	mc.setMotorSpeed(5, prevDriveLeftRearSpeed * -1);
 
 	//Serial.print(DriveLeftSpeed);
 	//Serial.print("\t");
 
-	//LiftLeftSpeed
-	/*
-	if(LiftLeftSpeed < -400)
-	LiftLeftSpeed = -400;
-	if(LiftLeftSpeed > 400)
-	LiftLeftSpeed = 400;
 
-	prevLiftLeftSpeed = torqueLimit(prevLiftLeftSpeed, LiftLeftSpeed, TorqueLimitLift);
+	if(LiftSpeed < -400)
+	LiftSpeed = -400;
+	if(LiftSpeed > 400)
+	LiftSpeed = 400;
 
-	mc2.setM1Speed(prevLiftLeftSpeed);
+	LiftSpeed = map(LiftSpeed, -400, 400, -255, 255);
+
+	if(LiftSpeed < 0){
+		mc.setMotorSpeed(3, -1 * LiftSpeed);
+		mc.setMotorSpeed(7, -1 * LiftSpeed);
+	}else{
+		mc.setMotorSpeed(3, -1 * LiftSpeed);
+		mc.setMotorSpeed(7, -1 *LiftSpeed);
+	}
+
+
+	//prevLiftSpeed = torqueLimit(prevLiftSpeed, LiftSpeed, TorqueLimitLift);
+
+
 
 	/* Serial.print(LiftLeftSpeed);
 	Serial.print("\t");
+*/
 
-	//LiftRightSpeed
-	if(LiftRightSpeed < -400)
-	LiftRightSpeed = -400;
-	if(LiftRightSpeed > 400)
-	LiftRightSpeed = 400;
-
-	prevLiftRightSpeed = torqueLimit(prevLiftRightSpeed, LiftRightSpeed, TorqueLimitLift);
-
-	mc1.setM2Speed(prevLiftRightSpeed);
-
-	Serial.print(LiftRightSpeed);
-	Serial.print("\t");
+	//Serial.print(LiftRightSpeed);
+	//Serial.print("\t");
 
 	//IntakeSpeed
-	*/
+
 	if(ClawSpeed < -400)
 	ClawSpeed = -400;
 	if(ClawSpeed > 400)
 	ClawSpeed = 400;
-	serClaw.write(convertToServo(ClawSpeed));
+	
+	ClawSpeed = map(ClawSpeed, -400, 400, -255, 255);
+
+	mc.setMotorSpeed(2, ClawSpeed);
 
 
-	analogWrite(_ledRed, LEDRed);
-	analogWrite(_ledGrn, LEDGreen);
-	analogWrite(_ledBlu, LEDBlue);
+	mc.setMotorSpeed(6, 0);
 
 
 	//Expect 0-255

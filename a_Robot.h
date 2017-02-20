@@ -6,7 +6,7 @@
 #include "DualVNH5019MotorShield.h"
 #include "Encoder.h"
 #include <Servo.h>
-//#include "a_Controller.h"
+#include "MDD10A.h"
 
 class Robot
 {
@@ -45,8 +45,7 @@ public:
   float DriveRightRearSpeed;
   float DriveLeftFrontSpeed;
   float DriveLeftRearSpeed;
-  float LiftLeftSpeed;
-  float LiftRightSpeed;
+  float LiftSpeed;
   float ClawSpeed;
   //float ArmSpeed;
   //float ClawPower;
@@ -59,14 +58,19 @@ public:
   int TorqueLimitDrive;
   int TorqueLimitLift;
 
+  int startMillis = 0;
+
+  bool setMillisTime = true;
+
+  int LiftPotVal = 0;
+
   USB Usb;
 
 private:
   //Controller *controller;
-  DualVNH5019MotorShield mc1;
-  DualVNH5019MotorShield mc2;
-  Servo serIntake;
-  Servo serArm;
+  MDD10A mc;
+  Servo serLiftLeft;
+  Servo serLiftRight;
   Servo serClaw;
 
   /*
@@ -81,8 +85,7 @@ private:
   float prevDriveRightRearSpeed;
   float prevDriveLeftFrontSpeed;
   float prevDriveLeftRearSpeed;
-  float prevLiftLeftSpeed;
-  float prevLiftRightSpeed;
+  float prevLiftSpeed;
 
   //Private Vars
   /*
@@ -136,8 +139,8 @@ private:
   const int _mc2_PWM2 = 11;
 
   //Intake ESC Pin
-  const int _intake_PWM = 7;
-  const int _arm_PWM = 5;
+  const int _liftLeft_PWM = 7;
+  const int _liftRight_PWM = 5;
   const int _claw_PWM = 6;
 
   // Encoder Pinouts
@@ -164,6 +167,8 @@ private:
   const int _ledRed = 4;
   const int _ledGrn = 8;
   const int _ledBlu = 13;
+
+  const int _potPin = 3;
 
 
 };

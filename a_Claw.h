@@ -15,6 +15,9 @@ class Claw
 
     int ControllerSpeed;
 
+    int StartClampTime = 0;
+    int ClampTime = 0;
+
   private:
   	Robot *robot;
 

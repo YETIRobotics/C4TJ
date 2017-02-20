@@ -13,7 +13,6 @@
 
 #include "a_Lift.h"
 #include "a_Drive.h"
-#include "a_Intake.h"
 #include "a_Claw.h"
 #include <Servo.h>
 
@@ -54,8 +53,8 @@ void setup() {
   Robot.SetLED(255, 0, 0); //Set LEDs to white
 
   timer.setInterval(20, runStuff);
-  timer.setInterval(1000, manageLEDs);
-  timer.setInterval(250, blink);
+  //timer.setInterval(1000, manageLEDs);
+  //timer.setInterval(250, blink);
 
 }
 
@@ -137,7 +136,7 @@ void runStuff()
 
   Robot.Write();
 
-  SerialReceiveMove();
+ // SerialReceiveMove();
 
   /*
 
@@ -215,15 +214,44 @@ void loop() {
 
 void MapRobot()
 {
+	if(!_autoRunning){
   Drive.LeftControllerSpeedY = Controller.LeftJoystickY;
   Drive.LeftControllerSpeedX = Controller.LeftJoystickX;
   Drive.RightControllerSpeedY = Controller.RightJoystickY;
   Drive.RightControllerSpeedX = Controller.RightJoystickX;
 
-  Lift.ControllerSpeed = Controller.TriggerAggregate;
+  if(Controller.TriggerAggregate != 0){
+    Lift.SetPoint = 0;
+    Lift.ControllerSpeed = Controller.TriggerAggregate;
+  }
+
+  Lift.UsePot = false;
+
+  switch(Controller.DPadLeftRight){
+    case 1: //Right
+      Lift.ControllerSpeed = 400;
+    break;
+
+    case -2: //DOWN
+      Lift.ControllerSpeed = -400;
+    break;
+
+    case 2: //UP
+      Lift.SetPoint = 790;
+      break;
+
+    case -1: //LEFT
+      Lift.SetPoint = 715;
+      break;
+
+    case 0:
+      Lift.UsePot = true;
+    break;
+
+  }
 
   Claw.ControllerSpeed = Controller.LR2Aggregate;
-
+}
   if(Controller.YPress == 1 && !_autoRunning)
   {
     _autoProgNum = 1;
@@ -270,9 +298,46 @@ void autoStart()
 
 void autonomous()
 {
+  Lift.UsePot = false;
+  int offset = 1000;
+	float drivePower = 250;
  // Serial.println(_autoInterval);
   switch(_autoInterval)
   {
+		case 0:
+			Lift.SetPoint = 790;
+			Claw.ControllerSpeed = -1;
+      break;
+
+      case 750:
+      Claw.ControllerSpeed = 0;
+      break;
+      
+      case 1000:
+			Drive.LeftControllerSpeedY = drivePower;
+			Drive.LeftControllerSpeedX = 0;
+			Drive.RightControllerSpeedY = 0;
+			Drive.RightControllerSpeedX = 0;
+			break;
+
+			
+
+			case 3000:
+			Drive.LeftControllerSpeedY = -250;
+		  Drive.LeftControllerSpeedX = 0;
+		  Drive.RightControllerSpeedY = 0;
+		  Drive.RightControllerSpeedX = 0;
+			break;
+
+			case 3500:
+			Drive.LeftControllerSpeedY = 0;
+
+			break;
+
+			case 5000:
+      autoStop();
+      break;
+
     /*  case 0:
         Claw.DeClamp();
       break;
@@ -375,93 +440,7 @@ void autonomous()
  * Serial Communication functions / helpers
  ********************************************/
 
-
-union {                // This Data structure lets
-  byte asBytes[24];    // us take the byte array
-  float asFloat[6];    // sent from processing and
-}                      // easily convert it to a
-foo;                   // float array
-
-void SerialReceiveMove()
-{
-///////////////////////////////////
-
-  String readString, funcName;
-  int funcVal;
-
-  readString="";
-
-  while (Serial.available()) {
-    delay(10);  //delay to allow buffer to fill
-    if (Serial.available() >0) {
-      char c = Serial.read();  //gets one byte from serial buffer
-      readString += c; //makes the string readString
-  }
-}
-
-if (readString.length() >0) {
-      Serial.println(readString); //see what was received
-
-      // expect a string like XX #### containing the two servo positions
-      funcName = readString.substring(0, 2); //get the first four characters
-      String tmpFuncVal = readString.substring(3, 7); //get the next four characters
-      funcVal = tmpFuncVal.toFloat();
-
-
-  }
-  Serial.flush();
-/*
-  if (funcName == "LT")
-  {
-      Lift.LiftTo(funcVal);
-  }
-  else if (funcName == "LA")
-  {
-      Lift.LiftAdd(funcVal);
-  }
-  else if (funcName == "DL")
-  {
-      Drive.DriveLeft(funcVal);
-  }
-  else if (funcName == "DR")
-  {
-      Drive.DriveRight(funcVal);
-  }
-  else if (funcName == "MO")
-  {
-      Drive.Move(funcVal);
-  }
-  else if (funcName == "CL")
-  {
-      Claw.Clamp();
-  }
-  else if (funcName == "DC")
-  {
-      Claw.DeClamp();
-  }
-  else if (funcName == "AT")
-  {
-      Claw.ArmTo(funcVal);
-  }
-  else if (funcName == "SC")
-  {
-      Claw.StopClamp();
-  }
-  else if (funcName == "TL") //Torque Limit Lift
-  {
-    Lift.SetTorqueLimit(funcVal);
-  }
-  else if (funcName == "TD") //Torque Limit Drive
-  {
-    Drive.SetTorqueLimit(funcVal);
-  }
-  else if (funcName == "AR")
-  {
-    void autoRedGoal();
-  }
-*/
-
-}
+                // float array
 
 // getting float values from processing into the arduino
 // was no small task.  the way this program does it is

@@ -11,14 +11,25 @@ public:
   // CONSTRUCTORS
   Lift(Robot *p); // Default pin selection.
 
+
   void Task();
   void init();
+
+
+  int PotLowVal = 290;
+  int PotHighVal = 880;
+  int LiftDirection = 0; // 1 is up, 0 is stop, -1 is down
+
+  bool UsePot = false;
+
+  int SetPoint = 0;
 
   //Autonomous Methods
   //void LiftTo(double position);
   //void LiftAdd(double position);
 
   void SetTorqueLimit(int val);
+
 
   //PID
 
@@ -34,6 +45,7 @@ public:
 
 private:
   Robot *robot;
+
 
   //Lift PID
   /*

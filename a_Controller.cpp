@@ -1,7 +1,8 @@
 #include "a_Controller.h"
 
-// Constructors ////////////////////////////////////////////////////////////////
 
+
+// Constructors ////////////////////////////////////////////////////////////////
 Controller::Controller()
 :Xbox(&dummyXboxPointer)
 {
@@ -101,6 +102,10 @@ void Controller::Task()
 					YPress = 1;
 				}
 
+				if (Xbox.getButtonPress(A, i)){
+					
+				}
+
 
 
 				if (Xbox.getButtonPress(A, i))
@@ -110,7 +115,7 @@ void Controller::Task()
 
 
 
-				if (Xbox.getButtonPress(LEFT, i))
+				if (Xbox.getButtonClick(LEFT, i))
 				{
 					DPadLeftRight = -1;
 				}
@@ -118,7 +123,7 @@ void Controller::Task()
 				{
 					DPadLeftRight = 1;
 				}
-				else if (Xbox.getButtonPress(UP, i))
+				else if (Xbox.getButtonClick(UP, i))
 				{
 					DPadLeftRight = 2;
 				}
