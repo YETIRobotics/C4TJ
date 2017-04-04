@@ -59,3 +59,5 @@ void HexDumper<BASE_CLASS, LEN_TYPE, OFFSET_TYPE>::Parse(const LEN_TYPE len, con
 }
 
 #endif // __HEXDUMP_H__
+
+

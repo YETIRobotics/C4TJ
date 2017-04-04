@@ -450,3 +450,5 @@ uint8_t MAX3421e< SPI_SS, INTR >::IntHandler() {
 //}
 
 #endif //_USBHOST_H_
+
+

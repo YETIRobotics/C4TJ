@@ -164,3 +164,5 @@ typedef struct {
 } __attribute__((packed)) HID_CLASS_DESCRIPTOR_LEN_AND_TYPE;
 
 #endif // _ch9_h_
+
+

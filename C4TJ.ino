@@ -1,4 +1,4 @@
-
+//a
 
 //Indirectly Used Library Includes
 #include "XBOXRECV.h"
@@ -6,15 +6,18 @@
 #include "SimpleTimer.h"
 #include "PID_v1.h"
 #include "Encoder.h"
+#include <Servo.h>
+#include <Wire.h>
+//#include "Adafruit_Sensor.h"
+//#include "Adafruit_BNO055.h"
+//#include "imumaths.h"
 
 //Directly Used Library Includes
 #include "a_Robot.h"
 #include "a_Controller.h"
-
 #include "a_Lift.h"
 #include "a_Drive.h"
 #include "a_Claw.h"
-#include <Servo.h>
 
 
 Robot Robot;
@@ -42,91 +45,25 @@ PID myPID;
 */
 
 void setup() {
-	Serial.begin(115200);
-	while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+  Serial.begin(115200);
+  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 
 
   Robot.init();
   Lift.init();
   Drive.init();
 
-  Robot.SetLED(255, 0, 0); //Set LEDs to white
+  //Robot.SetLED(255, 0, 0); //Set LEDs to white
 
-  timer.setInterval(20, runStuff);
+  timer.setInterval(1, runStuff);
   //timer.setInterval(1000, manageLEDs);
   //timer.setInterval(250, blink);
 
 }
-
-int secCount = 2; //default to 2, takes ~ 1.5 secs to boot
-bool blinkLEDs = false;
-int red, blu, grn;
-bool blnkOn = true;
-void manageLEDs()
-{
-  secCount++;
-
-
-
-  //25 second auton
-  //80 Second Drivers
-  switch(secCount)
-  {
-    case 1:
-      //LEDs green
-        grn = 255;
-        red = 0;
-        blu = 0;
-        Robot.SetLED(red,grn,blu);
-        break;
-    case 20:
-      //Blink Green
-        blinkLEDs = true;
-        break;
-    case 25:
-      //LEDs White
-        blinkLEDs = false;
-        red = 255;
-        blu = 255;
-        grn = 255;
-        Robot.SetLED(red,grn,blu);
-        break;
-    case 75:
-      //Blink LEDs
-        blinkLEDs = true;
-        break;
-    case 105:
-      //LEDs White
-        blinkLEDs = false;
-        red = 255;
-        blu = 255;
-        grn = 255;
-        Robot.SetLED(red,grn,blu);
-        break;
-    }
-}
-void blink()
-{
-
-  if(blinkLEDs)
-  {
-    if(blnkOn)
-    {
-      blnkOn = false;
-      Robot.SetLED(red*.1,grn*.1,blu*.1);
-    }
-    else
-    {
-        blnkOn = true;
-        Robot.SetLED(red,grn,blu);
-    }
-  }
-}
-
 void runStuff()
 {
   Robot.Read();
-  Controller.Task();
+  Controller.Task();  
 
   MapRobot();
 
@@ -187,16 +124,16 @@ void runStuff()
 
       default:
       break;
-  }
-  if(!_pauseForPID)
+    }
+    if(!_pauseForPID)
       _autoInterval = _autoInterval + 20;
 
     //Safety switch in case forgot to call autoStop
-  if(_autoInterval > _maxAutonomousDuration)
-  {
+    if(_autoInterval > _maxAutonomousDuration)
+    {
       //autoStop();
+    }
   }
-}
 
 
   //Grab Serial Input
@@ -214,44 +151,57 @@ void loop() {
 
 void MapRobot()
 {
-	if(!_autoRunning){
-  Drive.LeftControllerSpeedY = Controller.LeftJoystickY;
-  Drive.LeftControllerSpeedX = Controller.LeftJoystickX;
-  Drive.RightControllerSpeedY = Controller.RightJoystickY;
-  Drive.RightControllerSpeedX = Controller.RightJoystickX;
+  Serial.println(Robot.GetGyroDegrees());
+  if(!_autoRunning){
+    Drive.LeftControllerSpeedY = Controller.LeftJoystickY;
+    Drive.LeftControllerSpeedX = Controller.LeftJoystickX;
+    Drive.RightControllerSpeedY = Controller.RightJoystickY;
+    Drive.RightControllerSpeedX = Controller.RightJoystickX;
 
-  if(Controller.TriggerAggregate != 0){
-    Lift.SetPoint = 0;
-    Lift.ControllerSpeed = Controller.TriggerAggregate;
-  }
+    //if(Controller.TriggerAggregate != 0){
+      //Lift.LiftTo(0);
+      Lift.ControllerSpeed = Controller.TriggerAggregate;
+    //}
 
-  Lift.UsePot = false;
 
-  switch(Controller.DPadLeftRight){
-    case 1: //Right
+    switch(Controller.DPadLeftRight){
+      case 1: //Right
       Lift.ControllerSpeed = 400;
-    break;
-
-    case -2: //DOWN
-      Lift.ControllerSpeed = -400;
-    break;
-
-    case 2: //UP
-      Lift.SetPoint = 790;
       break;
 
-    case -1: //LEFT
-      Lift.SetPoint = 715;
+      case -2: //DOWN
+		  Lift.UseLimits(false);
+		Lift.ControllerSpeed = -400;
+			break;
+
+      case 2: //UP
+      Lift.LiftTo(790);
       break;
 
-    case 0:
-      Lift.UsePot = true;
-    break;
+      case -1: //LEFT
+      Lift.LiftTo(715);
+      break;
 
+    }
+
+    Claw.ControllerSpeed = Controller.LR2Aggregate;
   }
 
-  Claw.ControllerSpeed = Controller.LR2Aggregate;
-}
+  else
+  {
+    Drive.LeftControllerSpeedY = 0;
+    Drive.LeftControllerSpeedX = 0;
+    Drive.RightControllerSpeedY = 0;
+    Drive.RightControllerSpeedX = 0;
+    Lift.ControllerSpeed = 0;
+    Claw.ControllerSpeed = 0;
+    
+    
+  }
+
+
+
+
   if(Controller.YPress == 1 && !_autoRunning)
   {
     _autoProgNum = 1;
@@ -259,16 +209,16 @@ void MapRobot()
     {
       if(!_autoRunning)
       {
-                  // Start Program
+                    // Start Program
         autoStart();
-    }
-    else
-    {
-                  // Stop Program
+      }
+      else
+      {
+                    // Stop Program
         autoStop();
+      }
     }
-}
-}
+  }
 
 }
 
@@ -292,144 +242,29 @@ void autoStart()
   {
     _autoRunning = true;
     _autoInterval = 0;
-}
+  }
 }
 
-
+int curStep = 0;
+bool stop = false;
 void autonomous()
 {
-  Lift.UsePot = false;
-  int offset = 1000;
-	float drivePower = 250;
+  if(!stop){
+
  // Serial.println(_autoInterval);
-  switch(_autoInterval)
-  {
-		case 0:
-			Lift.SetPoint = 790;
-			Claw.ControllerSpeed = -1;
-      break;
+    switch(_autoInterval)
+    {
 
-      case 750:
-      Claw.ControllerSpeed = 0;
-      break;
-      
-      case 1000:
-			Drive.LeftControllerSpeedY = drivePower;
-			Drive.LeftControllerSpeedX = 0;
-			Drive.RightControllerSpeedY = 0;
-			Drive.RightControllerSpeedX = 0;
-			break;
-
-			
-
-			case 3000:
-			Drive.LeftControllerSpeedY = -250;
-		  Drive.LeftControllerSpeedX = 0;
-		  Drive.RightControllerSpeedY = 0;
-		  Drive.RightControllerSpeedX = 0;
-			break;
-
-			case 3500:
-			Drive.LeftControllerSpeedY = 0;
-
-			break;
-
-			case 5000:
-      autoStop();
-      break;
-
-    /*  case 0:
-        Claw.DeClamp();
-      break;
-
-      case 20:
-        Lift.LiftTo(35);
-      break;
-
-      case 1500:
-        Claw.ArmTo(65);
-      break;
-
-      case 2000:
-        Lift.LiftTo(9);
-        Claw.StopClamp();
-      break;
-
-      case 3500:
-        Drive.Move(42);
-      break;
-
-      case 5000:
-        Claw.DeClamp();
-        Claw.ArmTo(48);
-      break;
-
-      case 6000:
-        Claw.Clamp();
-      break;
-
-      case 7000:
-        Lift.LiftTo(18);
-      break;
-
-      case 8000:
-        Claw.ArmTo(80);
-      break;
-
-      case 9000:
-        Lift.LiftTo(0);
-      break;
-
-      case 10000:
-        Claw.DeClamp();
-      break;
-
-     case 12000:
-        Lift.LiftTo(9);
-      break;
-
-      case 16000:
-        Claw.ArmTo(50);
-      break;
-
-      case 22000:
       case 0:
-        Drive.Move(70);
+
+        curStep++; 
       break;
 
-      case 1000:
-        Lift.LiftTo(45);
-        Claw.DeClamp();
+      case 10:
+        autoStop();
       break;
 
-      case 4000:
-        Claw.ArmTo(62);
-      break;
-
-      case 5500:
-        Claw.StopClamp();
-        Lift.LiftTo(10);
-      break;
-
-      case 8500:
-        Claw.DeClamp();
-        Claw.ArmTo(81);
-      break;
-
-      case 11000:
-        Claw.Clamp();
-        Lift.LiftTo(15);
-      break;
-
-      case 12000:
-        Drive.Move(200);
-      break;
-
-      case 15000:
-      Claw.StopClamp();
-      autoStop();
-      break;
-      */
+    }
 
   }
 }
@@ -525,3 +360,5 @@ void SerialSend()
   if(myPID.GetMode()==AUTOMATIC) Serial.println("Automatic");
   else Serial.println("Manual");
 }*/
+
+

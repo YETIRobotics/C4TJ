@@ -76,3 +76,5 @@ void ErrorMessage(char const * msg, ERROR_TYPE rcode = 0) {
 }
 
 #endif // __MESSAGE_H__
+
+

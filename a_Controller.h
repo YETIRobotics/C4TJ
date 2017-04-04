@@ -21,6 +21,8 @@ class Controller
     float RightJoystickX;
     float TriggerAggregate;
     int LR2Aggregate;
+    
+    int StartButton;
 
     int DPadLeftRight;
     int APress;
@@ -35,3 +37,5 @@ class Controller
 };
 
 #endif
+
+

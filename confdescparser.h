@@ -215,3 +215,5 @@ void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::PrintHidDescrip
 
 
 #endif // __CONFDESCPARSER_H__
+
+

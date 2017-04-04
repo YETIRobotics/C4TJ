@@ -65,3 +65,5 @@ bool PTPListParser::Parse(uint8_t **pp, uint16_t *pcntdn, PTP_ARRAY_EL_FUNC pf, 
         }
         return true;
 }
+
+

@@ -235,3 +235,5 @@ unsigned char DualVNH5019MotorShield::getM2Fault()
 {
   return !digitalRead(_EN2DIAG2);
 }
+
+

@@ -11,13 +11,12 @@ Robot::Robot()
 	Usb.Init();
 	mc.init();
 
-	/*
+	
 	encDriveRight.init(_drive_Right_encInt, _drive_Right_encDig);
 	encDriveLeft.init(_drive_Left_encInt, _drive_Left_encDig);
-	encLiftRight.init(_lift_Right_encInt, _lift_Right_encDig);
-	encLiftLeft.init(_lift_Left_encInt, _lift_Left_encDig);
-	encClaw.init(_claw_encInt, _claw_encDig);
-	*/
+	//gyroLift = Adafruit_BNO055(55);
+	//gyroLift.begin();
+	//gyroLift.setExtCrystalUse(true);
 
 	prevDriveRightFrontSpeed = 0;
 	prevDriveRightRearSpeed = 0;
@@ -31,15 +30,10 @@ Robot::Robot()
 	LiftSpeed = 0;
 	ClawSpeed = 0;
 
-	//Expect 0-255
-	LEDRed = 0;
-	LEDBlue = 0;
-	LEDGreen = 0;
-
 	TorqueLimitDrive = 0;
 	TorqueLimitLift = 0; 
 
-	LiftPotVal = 0;
+	//LiftPotVal = 0;
 
 }
 
@@ -52,26 +46,27 @@ void Robot::Read(){
 
 	Usb.Task();
 
-	/*
+	
 	_encDriveRight = encDriveRight.read() * -1;
 	_encDriveLeft = encDriveLeft.read();
-	_encLiftRight = encLiftRight.read();
-	_encLiftLeft = encLiftLeft.read() * -1;
-	_encClaw = encClaw.read();
-	_leftLimitSwitch = digitalRead(_lift_Left_Limit);
-	_rightLimitSwitch = digitalRead(_lift_Right_Limit);
-	*/
-	LiftPotVal = analogRead(_potPin);
+	
+	_potLift = analogRead(_potPin);
+	
+
+	//sensors_event_t event; 
+  	//gyroLift.getEvent(&event);
+	_gyroDegrees = 0;// event.orientation.x;
+	/*
+    Serial.print("X: ");
+  Serial.print(event.orientation.x, 4);
+  Serial.print("\tY: ");
+  Serial.print(event.orientation.y, 4);
+  Serial.print("\tZ: ");
+  Serial.print(event.orientation.z, 4);
+  Serial.println("");
+  */
 
 
-
-
-}
-void Robot::SetLED(int red, int grn, int blu)
-{
-	LEDRed = red;
-	LEDBlue = blu;
-	LEDGreen = grn;
 }
 
 float Robot::torqueLimit(float prevVal, float curVal, int torqueLim)
@@ -234,7 +229,7 @@ int Robot::convertToServo(float inVal)
 
 
 //ReadOnly Methods
-/*
+
 float Robot::GetEncDriveRight(){
 	return _encDriveRight;
 }
@@ -243,46 +238,16 @@ float Robot::GetEncDriveLeft(){
 	return _encDriveLeft;
 }
 
-float Robot::GetEncLiftRight(){
-	return _encLiftRight;
+float Robot::GetPotLift(){
+	return _potLift;
 }
 
-float Robot::GetEncLiftLeft(){
-	return _encLiftLeft;
+float Robot::GetGyroDegrees(){
+	return _gyroDegrees;
 }
 
-float Robot::GetEncClaw(){
-	return _encClaw;
+float Robot::GetGyroAbsolute(){
+	return (float)((int) _gyroDegrees % 360);
 }
 
-bool Robot::GetLeftLimitSwitch(){
-	return _leftLimitSwitch;
-}
 
-bool Robot::GetRightLimitSwitch(){
-	return _rightLimitSwitch;
-}
-*/
-
-float Robot::GetDriveLeftFrontCurrent(){
-	return _driveLeftFrontCurrent;
-}
-
-float Robot::GetDriveRightFrontCurrent(){
-	return _driveRightFrontCurrent;
-}
-
-float Robot::GetDriveLeftRearCurrent(){
-	return _driveLeftRearCurrent;
-}
-
-float Robot::GetDriveRightRearCurrent(){
-	return _driveRightRearCurrent;
-}
-
-/*
-void Robot::SetController(Controller *p)
-{
-controller = p;
-}
-*/

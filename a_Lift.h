@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "a_Robot.h"
-//#include "PID_v1.h"
+#include "PID_v1.h"
 
 class Lift
 {
@@ -18,26 +18,23 @@ public:
 
   int PotLowVal = 290;
   int PotHighVal = 880;
-  int LiftDirection = 0; // 1 is up, 0 is stop, -1 is down
 
-  bool UsePot = false;
-
-  int SetPoint = 0;
+  void UseLimits(bool useLimits);
 
   //Autonomous Methods
-  //void LiftTo(double position);
-  //void LiftAdd(double position);
+  void LiftTo(double position);
+  void LiftAdd(double position);
 
   void SetTorqueLimit(int val);
 
 
   //PID
 
-  //PID liftPID;
+  PID liftPID;
 
-  //double liftCurPos = 0;
-  //double liftSetPoint = 0;
-  //double liftPIDOut = 0;
+  double liftCurPos = 0;
+  double liftSetPoint = 0;
+  double liftPIDOut = 0;
 
   float ControllerSpeed;
 
@@ -46,16 +43,19 @@ public:
 private:
   Robot *robot;
 
+  bool useLimits;
 
   //Lift PID
-  /*
+  
   bool liftPIDEnable = false;
   const int liftPIDTolerence = 0;
-  const double liftKP = 60;
+  const double liftKP = 5;
   const double liftKI = 0;
-  const double liftKD = 1;
-  */
+  const double liftKD = .1;
+  
 
 };
 
 #endif
+
+

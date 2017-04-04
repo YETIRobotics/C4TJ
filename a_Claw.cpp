@@ -17,6 +17,7 @@ void Claw::Task()
 	else
 		robot->ClawSpeed = 0;
 
+        /*
 	if(ControllerSpeed != 0 && ClampTime == 0)
 	{
 		StartClampTime = millis();
@@ -25,7 +26,7 @@ void Claw::Task()
 	ClampTime = millis() - StartClampTime;
 
 	if(ControllerSpeed != 0 && ClampTime >= 1500){
-		robot->ClawSpeed *= 0.007;
+		robot->ClawSpeed *= 0.1;
 	}
 
 	if(ControllerSpeed == 0){
@@ -33,5 +34,10 @@ void Claw::Task()
 		StartClampTime = millis();
 
 	}
+      */
+
+        //ControllerSpeed *= 0.1;
 
 }
+
+

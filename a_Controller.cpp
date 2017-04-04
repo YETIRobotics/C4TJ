@@ -21,6 +21,7 @@ Controller::Controller(USB *p)
 	DPadLeftRight = 0;
 	APress = 0;
 	YPress = 0;
+        StartButton = 0;
 }
 
 void Controller::Task()
@@ -35,6 +36,7 @@ void Controller::Task()
 	APress = 0;
 	YPress = 0;
 	DPadLeftRight = 0;
+        StartButton = 0;
 
 	//This is where you update controller items.
 	if (Xbox.XboxReceiverConnected)
@@ -110,9 +112,12 @@ void Controller::Task()
 
 				if (Xbox.getButtonPress(A, i))
 				{
-					APress = 1;
+  					APress = 1;
 				}
-
+                                if (Xbox.getButtonClick(START, i))
+				{
+					StartButton = 1;
+				}
 
 
 				if (Xbox.getButtonClick(LEFT, i))
@@ -137,3 +142,5 @@ void Controller::Task()
 		}
 	}
 }
+
+
