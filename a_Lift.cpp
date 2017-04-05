@@ -31,11 +31,11 @@ void Lift::LiftAdd(double position)
 
 void Lift::init()
 {
-	liftPID.init(&liftCurPos, &liftPIDOut, &liftSetPoint,liftKP,liftKI,liftKD, DIRECT);
+	liftPID.init(&liftCurPos, &liftPIDOut, &liftSetPoint, liftKP, liftKI, liftKD, DIRECT);
 	liftCurPos = robot->GetPotLift();
 	liftPID.SetMode(MANUAL);
 	liftPIDOut = 0;
-	liftPID.SetOutputLimits(-400,400);
+	liftPID.SetOutputLimits(-400, 400);
 
 	useLimits = true;
 }
@@ -48,9 +48,9 @@ void Lift::UseLimits(bool _useLimits)
 void Lift::Task()
 {
 	/*if (liftSetPoint == 0 && liftPID.GetMode() == AUTOMATIC)
-		liftPID.SetMode(MANUAL);
+	liftPID.SetMode(MANUAL);
 	else if(liftPID.GetMode() == MANUAL && liftSetPoint != 0)
-		liftPID.SetMode(AUTOMATIC);*/
+	liftPID.SetMode(AUTOMATIC);*/
 
 	liftCurPos = robot->GetPotLift();
 	liftPID.Compute();
@@ -59,7 +59,7 @@ void Lift::Task()
 
 
 
-	if(ControllerSpeed != 0)
+	if (ControllerSpeed != 0)
 	{
 		robot->LiftSpeed = ControllerSpeed;
 		liftPID.SetMode(MANUAL);
@@ -67,49 +67,49 @@ void Lift::Task()
 	}
 	else
 	{
-		if(abs(liftSetPoint - liftCurPos) > liftPIDTolerence) 
+		if (abs(liftSetPoint - liftCurPos) > liftPIDTolerence)
 		{
 			robot->LiftSpeed = liftPIDOut;
 		}
-		else 
-		{ 
+		else
+		{
 			robot->LiftSpeed = 0;
 		}
-	} 
+	}
 
-	if ((robot->GetPotLift() >= PotHighVal && ControllerSpeed > 0 || robot->GetPotLift() <= PotLowVal && ControllerSpeed < 0) && useLimits) 
+	if ((robot->GetPotLift() >= PotHighVal && ControllerSpeed > 0 || robot->GetPotLift() <= PotLowVal && ControllerSpeed < 0) && useLimits)
 		robot->LiftSpeed = 0;
 
 	useLimits = true;
 
 	/*
 	if((robot->GetPotLift() >= PotHighVal && ControllerSpeed > 0 || robot->GetPotLift() <= PotLowVal && ControllerSpeed < 0) && UsePot){
-		robot->LiftSpeed = 0;
-		Serial.println(millis());
-	}else 
+	robot->LiftSpeed = 0;
+	Serial.println(millis());
+	}else
 	{
-		if(SetPoint != 0){
+	if(SetPoint != 0){
 
-			if(robot->GetPotLift() < SetPoint && LiftDirection >= 0){
-				ControllerSpeed = 400;
-				LiftDirection = 1;
-			}else if(robot->GetPotLift() > SetPoint && LiftDirection <= 0){
-				ControllerSpeed = -400;
-				LiftDirection = -1;
-			}
-			else
-			{
-				ControllerSpeed = 0;
-				LiftDirection = 0;
-				SetPoint = 0;
-			}
-
-		}else{ ControllerSpeed = 0;
-
-
-		}
+	if(robot->GetPotLift() < SetPoint && LiftDirection >= 0){
+	ControllerSpeed = 400;
+	LiftDirection = 1;
+	}else if(robot->GetPotLift() > SetPoint && LiftDirection <= 0){
+	ControllerSpeed = -400;
+	LiftDirection = -1;
 	}
-*/
+	else
+	{
+	ControllerSpeed = 0;
+	LiftDirection = 0;
+	SetPoint = 0;
+	}
+
+	}else{ ControllerSpeed = 0;
+
+
+	}
+	}
+	*/
 }
 
 

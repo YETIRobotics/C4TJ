@@ -8,9 +8,9 @@
 #include "Encoder.h"
 #include <Servo.h>
 #include <Wire.h>
-//#include "Adafruit_Sensor.h"
-//#include "Adafruit_BNO055.h"
-//#include "imumaths.h"
+#include "Adafruit_Sensor.h"
+#include "Adafruit_BNO055.h"
+#include "imumaths.h"
 
 //Directly Used Library Includes
 #include "a_Robot.h"
@@ -19,6 +19,8 @@
 #include "a_Drive.h"
 #include "a_Claw.h"
 
+//try initializing this in the INO
+Adafruit_BNO055 gyroLift = Adafruit_BNO055(55);
 
 Robot Robot;
 
@@ -45,105 +47,167 @@ PID myPID;
 */
 
 void setup() {
-  Serial.begin(115200);
-  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+	Serial.begin(115200);
+	while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 
+	//gyroLift in INO 
+	if (!gyroLift.begin())
+	{
+		/* There was a problem detecting the BNO055 ... check your connections */
+		Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+		while (1);
+	}
 
-  Robot.init();
-  Lift.init();
-  Drive.init();
+	delay(1000);
 
-  //Robot.SetLED(255, 0, 0); //Set LEDs to white
+	gyroLift.setExtCrystalUse(true);
 
-  timer.setInterval(1, runStuff);
-  //timer.setInterval(1000, manageLEDs);
-  //timer.setInterval(250, blink);
+	Robot.init();
+	Lift.init();
+	Drive.init();
+
+	//Robot.SetLED(255, 0, 0); //Set LEDs to white
+
+	timer.setInterval(1, taskController);
+
+	//gyro can only refresh every 10ms. Setting to 20 to be nice!
+	timer.setInterval(20, refreshGyro);
+
+	timer.setInterval(20, runStuff);
+
+	timer.setInterval(100, SerialOutput);
+
+	//timer.setInterval(250, blink);
 
 }
+
+void SerialOutput()
+{
+	Serial.print("G: ");
+	Serial.print(Robot.GetGyroDegrees(), 4);
+
+	Serial.print("P: ");
+	Serial.print(Robot.GetPotLift(), 4);
+
+
+	Serial.print("\tL: ");
+	Serial.print(Robot.GetEncDriveLeft(), 4);
+
+
+	Serial.print("\tR: ");
+	Serial.print(Robot.GetEncDriveRight(), 4);
+
+
+	Serial.println("");
+}
+
+
+void refreshGyro()
+{
+	/* Get a new sensor event */
+	sensors_event_t event;
+	gyroLift.getEvent(&event);
+
+	/* Display the floating point data */
+
+	Robot.SetGyroDegrees(event.orientation.x);
+
+
+
+}
+
+void taskController()
+{
+	Robot.TaskUSB();
+}
+
 void runStuff()
 {
-  Robot.Read();
-  Controller.Task();  
 
-  MapRobot();
 
-  Lift.Task();
-  Drive.Task();
-  Claw.Task();
+	Controller.Task();
 
-  Robot.Write();
+	MapRobot();
 
- // SerialReceiveMove();
+	Lift.Task();
+	Drive.Task();
+	Claw.Task();
 
-  /*
+	Robot.Write();
 
-  Serial.print(Robot.GetEncDriveLeft());
-  Serial.print("\t");
-  Serial.print(Robot.GetEncDriveRight());
-  Serial.print("\t");
-  Serial.print(Robot.GetEncLiftLeft());
-  Serial.print("\t");
-  Serial.print(Robot.GetEncLiftRight());
-  Serial.print("\t");
-  Serial.println(Robot.GetEncClaw());
+	// SerialReceiveMove();
 
-*/
+	 /*
+
+	 Serial.print(Robot.GetEncDriveLeft());
+	 Serial.print("\t");
+	 Serial.print(Robot.GetEncDriveRight());
+	 Serial.print("\t");
+	 Serial.print(Robot.GetEncLiftLeft());
+	 Serial.print("\t");
+	 Serial.print(Robot.GetEncLiftRight());
+	 Serial.print("\t");
+	 Serial.println(Robot.GetEncClaw());
+
+   */
    /* Serial.print("LLiftI: ");
-    Serial.print(digitalRead(19));
-    Serial.print("\t LLiftD: ");
-    Serial.print(digitalRead(29));
-    Serial.print("\t RDriveI: ");
-    Serial.print(digitalRead(3));
-    Serial.print("\t RDriveD: ");
-    Serial.println(digitalRead(23)); */
+	Serial.print(digitalRead(19));
+	Serial.print("\t LLiftD: ");
+	Serial.print(digitalRead(29));
+	Serial.print("\t RDriveI: ");
+	Serial.print(digitalRead(3));
+	Serial.print("\t RDriveD: ");
+	Serial.println(digitalRead(23)); */
 
 
 
 
 
 
-/*
-  if(millis()>serialTime)
-  {
-    myPID = Drive.drivePID;
-    Setpoint = Drive.driveSetPoint;
-    Input = Drive.driveCurPos;
-    Output = Drive.drivePIDOut;
+	/*
+	  if(millis()>serialTime)
+	  {
+		myPID = Drive.drivePID;
+		Setpoint = Drive.driveSetPoint;
+		Input = Drive.driveCurPos;
+		Output = Drive.drivePIDOut;
 
-    SerialReceive();
-    SerialSend();
-    serialTime+=500;
-  }
-*/
-  if (_autoRunning)
-  {
-    switch(_autoProgNum)
-    {
-      case 1:
-      autonomous();
+		SerialReceive();
+		SerialSend();
+		serialTime+=500;
+	  }
+	*/
+	if (_autoRunning)
+	{
+		switch (_autoProgNum)
+		{
+		case 1:
+			autonomous();
 
-      default:
-      break;
-    }
-    if(!_pauseForPID)
-      _autoInterval = _autoInterval + 20;
+		default:
+			break;
+		}
+		if (!_pauseForPID)
+			_autoInterval = _autoInterval + 20;
 
-    //Safety switch in case forgot to call autoStop
-    if(_autoInterval > _maxAutonomousDuration)
-    {
-      //autoStop();
-    }
-  }
+		//Safety switch in case forgot to call autoStop
+		if (_autoInterval > _maxAutonomousDuration)
+		{
+			//autoStop();
+		}
+	}
 
 
-  //Grab Serial Input
+	//Grab Serial Input
 
 
 }
 
 void loop() {
+	//put this here to read encoders as fast as possible.
+	Robot.Read();
 
-  timer.run();
+	timer.run();
 
 
 
@@ -151,74 +215,77 @@ void loop() {
 
 void MapRobot()
 {
-  Serial.println(Robot.GetGyroDegrees());
-  if(!_autoRunning){
-    Drive.LeftControllerSpeedY = Controller.LeftJoystickY;
-    Drive.LeftControllerSpeedX = Controller.LeftJoystickX;
-    Drive.RightControllerSpeedY = Controller.RightJoystickY;
-    Drive.RightControllerSpeedX = Controller.RightJoystickX;
+	//Serial.println(Robot.GetGyroDegrees());
+	if (!_autoRunning) {
+		Drive.LeftControllerSpeedY = Controller.LeftJoystickY;
+		Drive.LeftControllerSpeedX = Controller.LeftJoystickX;
+		Drive.RightControllerSpeedY = Controller.RightJoystickY;
+		Drive.RightControllerSpeedX = Controller.RightJoystickX;
 
-    //if(Controller.TriggerAggregate != 0){
-      //Lift.LiftTo(0);
-      Lift.ControllerSpeed = Controller.TriggerAggregate;
-    //}
+		//if(Controller.TriggerAggregate != 0){
+		  //Lift.LiftTo(0);
+		Lift.ControllerSpeed = Controller.TriggerAggregate;
+		//}
 
 
-    switch(Controller.DPadLeftRight){
-      case 1: //Right
-      Lift.ControllerSpeed = 400;
-      break;
-
-      case -2: //DOWN
-		  Lift.UseLimits(false);
-		Lift.ControllerSpeed = -400;
+		switch (Controller.DPadLeftRight) {
+		case 1: //Right
+			Lift.ControllerSpeed = 400;
 			break;
 
-      case 2: //UP
-      Lift.LiftTo(790);
-      break;
+		case -2: //DOWN
+			Lift.UseLimits(false);
+			Lift.ControllerSpeed = -400;
+			break;
 
-      case -1: //LEFT
-      Lift.LiftTo(715);
-      break;
+		case 2: //UP
+			Lift.LiftTo(Lift.PotHighFence);
+			break;
 
-    }
+		case -1: //LEFT
+			Lift.LiftTo(Lift.PotLowFence);
+			break;
 
-    Claw.ControllerSpeed = Controller.LR2Aggregate;
-  }
+		}
 
-  else
-  {
-    Drive.LeftControllerSpeedY = 0;
-    Drive.LeftControllerSpeedX = 0;
-    Drive.RightControllerSpeedY = 0;
-    Drive.RightControllerSpeedX = 0;
-    Lift.ControllerSpeed = 0;
-    Claw.ControllerSpeed = 0;
-    
-    
-  }
+		Claw.ControllerSpeed = Controller.LR2Aggregate;
+	}
 
+	else
+	{
+		Drive.LeftControllerSpeedY = 0;
+		Drive.LeftControllerSpeedX = 0;
+		Drive.RightControllerSpeedY = 0;
+		Drive.RightControllerSpeedX = 0;
+		Lift.ControllerSpeed = 0;
+		Claw.ControllerSpeed = 0;
 
 
+	}
 
-  if(Controller.YPress == 1 && !_autoRunning)
-  {
-    _autoProgNum = 1;
-    if(_autoProgNum != 0)
-    {
-      if(!_autoRunning)
-      {
-                    // Start Program
-        autoStart();
-      }
-      else
-      {
-                    // Stop Program
-        autoStop();
-      }
-    }
-  }
+
+	if (Controller.StartButton == 1)
+	{
+		Drive.HeadingLockToggle();
+	}
+
+	if (Controller.YPress == 1 && !_autoRunning)
+	{
+		_autoProgNum = 1;
+		if (_autoProgNum != 0)
+		{
+			if (!_autoRunning)
+			{
+				// Start Program
+				autoStart();
+			}
+			else
+			{
+				// Stop Program
+				autoStop();
+			}
+		}
+	}
 
 }
 
@@ -231,42 +298,80 @@ void MapRobot()
 // Initialize Autonomous Mode
 void autoStop()
 {
-  _autoRunning = false;
-  _autoProgNum = 0;
-  _autoInterval = 0;
+	_autoRunning = false;
+	_autoProgNum = 0;
+	_autoInterval = 0;
 }
 
 void autoStart()
 {
-  if(_autoProgNum != 0)
-  {
-    _autoRunning = true;
-    _autoInterval = 0;
-  }
+	if (_autoProgNum != 0)
+	{
+		_autoRunning = true;
+		_autoInterval = 0;
+	}
 }
 
 int curStep = 0;
 bool stop = false;
+
+
 void autonomous()
 {
-  if(!stop){
+	if (!stop) {
 
- // Serial.println(_autoInterval);
-    switch(_autoInterval)
-    {
+		// Serial.println(_autoInterval);
+		switch (_autoInterval)
+		{
 
-      case 0:
+		case 0:
+			Lift.LiftTo(Lift.PotHighFence);
+			Drive.Move(300);
+			break;
 
-        curStep++; 
-      break;
+		case 500:
+			Claw.Move(400, 2);
+			Drive.Move(-300);
+			break;
 
-      case 10:
-        autoStop();
-      break;
+		case 1000:
+			Drive.Move(1600);
+			break;
+		case 3000:
+			Drive.Move(-800);
+			Lift.LiftTo(Lift.PotLowVal);
+			break;
+		case 4500:
+			Drive.Turn(90);
+			break;
+		case 6500:
+			Drive.Move(400);
+			break;
+		case 7500:
+			Claw.Move(-400, 500);
+			break;
+		case 9000:
+			Lift.LiftTo(Lift.PotHighFence);
+			break;
+		case 10000:
+			Drive.Turn(-20);
+			break;
+		case 12000:
+			Drive.Move(800);
+			break;
+		case 13500:
+			Claw.Move(400, 1);
+			break;
+		
 
-    }
 
-  }
+		case 15000:
+			autoStop();
+			break;
+
+		}
+
+	}
 }
 
 
@@ -275,7 +380,7 @@ void autonomous()
  * Serial Communication functions / helpers
  ********************************************/
 
-                // float array
+ // float array
 
 // getting float values from processing into the arduino
 // was no small task.  the way this program does it is
@@ -305,32 +410,32 @@ void SerialReceive()
   byte Auto_Man = -1;
   while(Serial.available()&&index<25)
   {
-    if(index==0) Auto_Man = Serial.read();
-    else foo.asBytes[index-1] = Serial.read();
-    index++;
+	if(index==0) Auto_Man = Serial.read();
+	else foo.asBytes[index-1] = Serial.read();
+	index++;
   }
 
   // if the information we got was in the correct format,
   // read it into the system
   if(index==25  && (Auto_Man==0 || Auto_Man==1))
   {
-    Drive.driveLeftSetPoint=double(foo.asFloat[0]);
-    //Input=double(foo.asFloat[1]);       // * the user has the ability to send the
-                                          //   value of "Input"  in most cases (as
-                                          //   in this one) this is not needed.
-    if(Auto_Man==0)                       // * only change the output if we are in
-    {                                     //   manual mode.  otherwise we'll get an
-      Output=double(foo.asFloat[2]);      //   output blip, then the controller will
-    }                                     //   overwrite.
+	Drive.driveLeftSetPoint=double(foo.asFloat[0]);
+	//Input=double(foo.asFloat[1]);       // * the user has the ability to send the
+										  //   value of "Input"  in most cases (as
+										  //   in this one) this is not needed.
+	if(Auto_Man==0)                       // * only change the output if we are in
+	{                                     //   manual mode.  otherwise we'll get an
+	  Output=double(foo.asFloat[2]);      //   output blip, then the controller will
+	}                                     //   overwrite.
 
-    double p, i, d;                       // * read in and set the controller tunings
-    p = double(foo.asFloat[3]);           //
-    i = double(foo.asFloat[4]);           //
-    d = double(foo.asFloat[5]);           //
-    Drive.driveLeftPID.SetTunings(p, i, d);            //
+	double p, i, d;                       // * read in and set the controller tunings
+	p = double(foo.asFloat[3]);           //
+	i = double(foo.asFloat[4]);           //
+	d = double(foo.asFloat[5]);           //
+	Drive.driveLeftPID.SetTunings(p, i, d);            //
 
-    if(Auto_Man==0) myPID.SetMode(MANUAL);// * set the controller mode
-    else myPID.SetMode(AUTOMATIC);             //
+	if(Auto_Man==0) myPID.SetMode(MANUAL);// * set the controller mode
+	else myPID.SetMode(AUTOMATIC);             //
   }
   Serial.flush();                         // * clear any random data from the serial buffer
 }*/

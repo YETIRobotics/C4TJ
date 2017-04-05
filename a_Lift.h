@@ -8,51 +8,53 @@
 class Lift
 {
 public:
-  // CONSTRUCTORS
-  Lift(Robot *p); // Default pin selection.
+	// CONSTRUCTORS
+	Lift(Robot *p); // Default pin selection.
 
 
-  void Task();
-  void init();
+	void Task();
+	void init();
 
 
-  int PotLowVal = 290;
-  int PotHighVal = 880;
+	int PotLowVal = 290;
+	int PotHighVal = 880;
+	int PotHighFence = 790;
+	int PotLowFence = 715;
 
-  void UseLimits(bool useLimits);
+	void UseLimits(bool useLimits);
 
-  //Autonomous Methods
-  void LiftTo(double position);
-  void LiftAdd(double position);
+	//Autonomous Methods
+	void LiftTo(double position);
+	void LiftAdd(double position);
 
-  void SetTorqueLimit(int val);
+	void SetTorqueLimit(int val);
 
 
-  //PID
+	//PID
 
-  PID liftPID;
+	PID liftPID;
 
-  double liftCurPos = 0;
-  double liftSetPoint = 0;
-  double liftPIDOut = 0;
+	double liftCurPos = 0;
+	double liftSetPoint = 0;
+	double liftPIDOut = 0;
 
-  float ControllerSpeed;
+	float ControllerSpeed;
 
 
 
 private:
-  Robot *robot;
+	Robot *robot;
 
-  bool useLimits;
+	bool useLimits;
 
-  //Lift PID
-  
-  bool liftPIDEnable = false;
-  const int liftPIDTolerence = 0;
-  const double liftKP = 5;
-  const double liftKI = 0;
-  const double liftKD = .1;
-  
+	//Lift PID
+
+	bool liftPIDEnable = false;
+	const int liftPIDTolerence = 0;
+	const double liftKP = 5;
+	const double liftKI = 0;
+	const double liftKD = .1;
+
 
 };
 

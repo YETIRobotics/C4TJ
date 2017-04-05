@@ -6,20 +6,27 @@
 
 class Claw
 {
-  public:
-    // CONSTRUCTORS
-    Claw(Robot *p); // Default pin selection.
+public:
+	// CONSTRUCTORS
+	Claw(Robot *p); // Default pin selection.
 
-    void Task();
+	bool autoMove = false;
+	float autoMillis = 0;
+	float speed = 0;
+	float autoStart = 0;
+	float autoSpeed = 0;
+
+	void Task();
+	void Move(float speed, float mSec);
 
 
-    int ControllerSpeed;
+	int ControllerSpeed;
 
-    int StartClampTime = 0;
-    int ClampTime = 0;
+	int StartClampTime = 0;
+	int ClampTime = 0;
 
-  private:
-  	Robot *robot;
+private:
+	Robot *robot;
 
 };
 
