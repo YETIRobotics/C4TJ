@@ -29,6 +29,10 @@ public:
 
 	void SetTorqueLimit(int val);
 
+	void SetLiftKP(double val);
+	void SetLiftKI(double val);
+	void SetLiftKD(double val);
+
 
 	//PID
 

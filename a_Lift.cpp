@@ -8,6 +8,19 @@ Lift::Lift(Robot *p)
 }
 
 
+void Lift::SetLiftKP(double val)
+{
+	liftPID.SetTunings(val, liftPID.GetKi(), liftPID.GetKd());
+}
+void Lift::SetLiftKI(double val)
+{
+	liftPID.SetTunings(liftPID.GetKp(), val, liftPID.GetKd());
+}
+void Lift::SetLiftKD(double val)
+{
+	liftPID.SetTunings(liftPID.GetKp(), liftPID.GetKi(), val);
+}
+
 void Lift::SetTorqueLimit(int val)
 {
 	robot->TorqueLimitLift = val;

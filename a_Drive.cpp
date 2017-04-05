@@ -7,6 +7,45 @@ Drive::Drive(Robot *p)
 	robot = p;
 }
 
+void Drive::SetHLKP(double val)
+{
+	hlPID.SetTunings(val, hlPID.GetKi(), hlPID.GetKd());
+}
+void Drive::SetHLKI(double val)
+{
+	hlPID.SetTunings(hlPID.GetKp(), val, hlPID.GetKd());
+}
+void Drive::SetHLKD(double val)
+{
+	hlPID.SetTunings(hlPID.GetKp(), hlPID.GetKi(), val);
+}
+
+void Drive::SetDriveKP(double val)
+{
+	drivePID.SetTunings(val, drivePID.GetKi(), drivePID.GetKd());
+}
+void Drive::SetDriveKI(double val)
+{
+	drivePID.SetTunings(drivePID.GetKp(), val, drivePID.GetKd());
+}
+void Drive::SetDriveKD(double val)
+{
+	drivePID.SetTunings(drivePID.GetKp(), drivePID.GetKi(), val);
+}
+
+void Drive::SetTurnKP(double val)
+{
+	turnPID.SetTunings(val, turnPID.GetKi(), turnPID.GetKd());
+}
+void Drive::SetTurnKI(double val)
+{
+	turnPID.SetTunings(turnPID.GetKp(), val, turnPID.GetKd());
+}
+void Drive::SetTurnKD(double val)
+{
+	turnPID.SetTunings(turnPID.GetKp(), turnPID.GetKi(), val);
+}
+
 void Drive::SetTorqueLimit(int val)
 {
 	robot->TorqueLimitDrive = val;

@@ -135,7 +135,7 @@ void runStuff()
 
 	Robot.Write();
 
-	// SerialReceiveMove();
+	 SerialReceiveMove();
 
 	 /*
 
@@ -330,7 +330,7 @@ void autonomous()
 			break;
 
 		case 500:
-			Claw.Move(400, 2);
+			Claw.Move(-400, 2);
 			Drive.Move(-300);
 			break;
 
@@ -348,7 +348,7 @@ void autonomous()
 			Drive.Move(400);
 			break;
 		case 7500:
-			Claw.Move(-400, 500);
+			Claw.Move(400, 500);
 			break;
 		case 9000:
 			Lift.LiftTo(Lift.PotHighFence);
@@ -360,7 +360,7 @@ void autonomous()
 			Drive.Move(800);
 			break;
 		case 13500:
-			Claw.Move(400, 1);
+			Claw.Move(-400, 1);
 			break;
 		
 
@@ -375,95 +375,126 @@ void autonomous()
 }
 
 
-
-/********************************************
- * Serial Communication functions / helpers
- ********************************************/
-
- // float array
-
-// getting float values from processing into the arduino
-// was no small task.  the way this program does it is
-// as follows:
-//  * a float takes up 4 bytes.  in processing, convert
-//    the array of floats we want to send, into an array
-//    of bytes.
-//  * send the bytes to the arduino
-//  * use a data structure known as a union to convert
-//    the array of bytes back into an array of floats
-
-//  the bytes coming from the arduino follow the following
-//  format:
-//  0: 0=Manual, 1=Auto, else = ? error ?
-//  1-4: float setpoint
-//  5-8: float input
-//  9-12: float output
-//  13-16: float P_Param
-//  17-20: float I_Param
-//  21-24: float D_Param
-/*
-void SerialReceive()
+void SerialReceiveMove()
 {
 
-  // read the bytes sent from Processing
-  int index=0;
-  byte Auto_Man = -1;
-  while(Serial.available()&&index<25)
+
+
+
+///////////////////////////////////
+
+  String readString, funcName;
+  int funcVal;
+
+  readString="";
+
+  while (Serial.available()) {
+    delay(10);  //delay to allow buffer to fill 
+    if (Serial.available() >0) {
+      char c = Serial.read();  //gets one byte from serial buffer
+      readString += c; //makes the string readString
+  } 
+}
+
+if (readString.length() >0) {
+      Serial.println(readString); //see what was received
+      
+      // expect a string like XX #### containing the two servo positions      
+      funcName = readString.substring(0, 2); //get the first four characters
+      String tmpFuncVal = readString.substring(3, 7); //get the next four characters 
+      funcVal = tmpFuncVal.toFloat();
+
+
+  } 
+  Serial.flush();  
+
+//LIFT
+  if (funcName == "LT")
   {
-	if(index==0) Auto_Man = Serial.read();
-	else foo.asBytes[index-1] = Serial.read();
-	index++;
+      Lift.LiftTo(funcVal);
+  }
+  else if (funcName == "LP")
+  {
+    Lift.SetLiftKP(funcVal);
+  }
+  else if (funcName == "LI")
+  {
+    Lift.SetLiftKI(funcVal);
+  }
+  else if (funcName == "LD")
+  {
+    Lift.SetLiftKD(funcVal);
+  }
+  else if (funcName == "LO") //Torque Limit Lift
+  {
+    Lift.SetTorqueLimit(funcVal);
   }
 
-  // if the information we got was in the correct format,
-  // read it into the system
-  if(index==25  && (Auto_Man==0 || Auto_Man==1))
+//DRIVE
+  else if (funcName == "DT")
   {
-	Drive.driveLeftSetPoint=double(foo.asFloat[0]);
-	//Input=double(foo.asFloat[1]);       // * the user has the ability to send the
-										  //   value of "Input"  in most cases (as
-										  //   in this one) this is not needed.
-	if(Auto_Man==0)                       // * only change the output if we are in
-	{                                     //   manual mode.  otherwise we'll get an
-	  Output=double(foo.asFloat[2]);      //   output blip, then the controller will
-	}                                     //   overwrite.
-
-	double p, i, d;                       // * read in and set the controller tunings
-	p = double(foo.asFloat[3]);           //
-	i = double(foo.asFloat[4]);           //
-	d = double(foo.asFloat[5]);           //
-	Drive.driveLeftPID.SetTunings(p, i, d);            //
-
-	if(Auto_Man==0) myPID.SetMode(MANUAL);// * set the controller mode
-	else myPID.SetMode(AUTOMATIC);             //
+      Drive.Turn(funcVal);
   }
-  Serial.flush();                         // * clear any random data from the serial buffer
-}*/
+  else if (funcName == "DM")
+  {
+      Drive.Move(funcVal);
+  }
+  else if (funcName == "DO") //Torque Limit Drive
+  {
+    Drive.SetTorqueLimit(funcVal);
+  }  // DP DI DD TP TI TD HP HI HD
+  else if (funcName == "DP")
+  {
+    Drive.SetDriveKP(funcVal);
+  }
+  else if (funcName == "DI")
+  {
+    Drive.SetDriveKI(funcVal);
+  }
+  else if (funcName == "DD")
+  {
+    Drive.SetDriveKD(funcVal);
+  }
+  else if (funcName == "TP")
+  {
+    Drive.SetTurnKP(funcVal);
+  }
+  else if (funcName == "TI")
+  {
+    Drive.SetTurnKI(funcVal);
+  }
+  else if (funcName == "TD")
+  {
+    Drive.SetTurnKD(funcVal);
+  }
+  else if (funcName == "HP")
+  {
+    Drive.SetHLKP(funcVal);
+  }
+  else if (funcName == "HI")
+  {
+    Drive.SetHLKI(funcVal);
+  }
+  else if (funcName == "HD")
+  {
+    Drive.SetHLKD(funcVal);
+  }
+
+//CLAW
+  else if (funcName == "CC")
+  {
+      Claw.Clamp();
+  }
+  else if (funcName == "CO")
+  {
+      Claw.Open();
+  }
+
+//OTHER
+  else if (funcName == "AT")
+  {
+    autonomous();
+  }
 
 
-
-// unlike our tiny microprocessor, the processing ap
-// has no problem converting strings into floats, so
-// we can just send strings.  much easier than getting
-// floats from processing to here no?
-/*
-void SerialSend()
-{
-  Serial.print("PID ");
-  Serial.print(Setpoint);
-  Serial.print(" ");
-  Serial.print(Input);
-  Serial.print(" ");
-  Serial.print(Output);
-  Serial.print(" ");
-  Serial.print(myPID.GetKp());
-  Serial.print(" ");
-  Serial.print(myPID.GetKi());
-  Serial.print(" ");
-  Serial.print(myPID.GetKd());
-  Serial.print(" ");
-  if(myPID.GetMode()==AUTOMATIC) Serial.println("Automatic");
-  else Serial.println("Manual");
-}*/
-
-
+}

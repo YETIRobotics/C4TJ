@@ -24,6 +24,15 @@ public:
 
 	void SetTorqueLimit(int val);
 
+	void SetHLKP(double val);
+	void SetHLKI(double val);
+	void SetHLKD(double val);
+	void SetDriveKP(double val);
+	void SetDriveKI(double val);
+	void SetDriveKD(double val);
+	void SetTurnKP(double val);
+	void SetTurnKI(double val);
+	void SetTurnKD(double val);
 
 	//Floats
 	float LeftControllerSpeedY;

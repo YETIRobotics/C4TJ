@@ -18,6 +18,9 @@ public:
 
 	void Task();
 	void Move(float speed, float mSec);
+	void Open();
+	void Close();
+	void Clamp();
 
 
 	int ControllerSpeed;
@@ -27,6 +30,8 @@ public:
 
 private:
 	Robot *robot;
+
+	bool _shouldClamp = false;
 
 };
 
