@@ -19,6 +19,7 @@ public:
 	void Task();
 	void Move(float speed, float mSec);
 	void Open();
+	void Deploy();
 	void Close();
 	void Clamp();
 

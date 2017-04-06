@@ -71,6 +71,17 @@ void Drive::Turn(double degrees)
 	turnPID.SetMode(AUTOMATIC);
 }
 
+void Drive::TurnTo(double degrees)
+{
+	hlPID.SetMode(MANUAL);
+	hlPIDOut = 0;
+	drivePID.SetMode(MANUAL);
+	drivePIDOut = 0;
+
+	turnSetPoint = degrees;
+	turnPID.SetMode(AUTOMATIC);
+}
+
 void Drive::HeadingLockEnable()
 {
 	_headingLockEnabled = true;

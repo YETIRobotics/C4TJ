@@ -55,8 +55,8 @@ private:
 
 	bool liftPIDEnable = false;
 	const int liftPIDTolerence = 0;
-	const double liftKP = 5;
-	const double liftKI = 0;
+	const double liftKP = 3;
+	const double liftKI = .1;
 	const double liftKD = .1;
 
 

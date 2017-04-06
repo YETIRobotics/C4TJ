@@ -19,6 +19,7 @@ public:
 	void HeadingLockToggle();
 
 	//Autonomous Methods
+	void TurnTo(double degrees);
 	void Turn(double degrees);
 	void Move(double position);
 
@@ -73,14 +74,14 @@ private:
 	bool _drivePIDEnabled = false;
 	const int drivePIDTolerence = 10;
 	const double driveKP = 2;
-	const double driveKI = 0;
-	const double driveKD = .2;
+	const double driveKI = 0.01;
+	const double driveKD = 0;
 
 	bool _turnPIDEnabled = false;
 	const int turnPIDTolerence = 10;
 	const double turnKP = 8;
-	const double turnKI = 0;
-	const double turnKD = .4;
+	const double turnKI = 0.01;
+	const double turnKD = 0;
 };
 
 #endif

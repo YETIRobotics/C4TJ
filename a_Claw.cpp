@@ -11,19 +11,25 @@ Claw::Claw(Robot *p)
 void Claw::Clamp()
 {
 	_shouldClamp = true;
-	Move(400, 1000);
+	Move(400, 250);
 }
 
 void Claw::Close()
 {
 	_shouldClamp = false;
-	Move(400, 1000);
+	Move(400, 250);
 }
 
 void Claw::Open()
 {
 	_shouldClamp = false;
-	Move(-400, 1000);
+	Move(-400, 400);
+}
+
+void Claw::Deploy()
+{
+	_shouldClamp = false;
+	Move(-400, 200);
 }
 
 void Claw::Move(float speed, float mSec) {
@@ -37,7 +43,11 @@ void Claw::Task()
 {
 	if (_shouldClamp)
 	{
-		robot->ClawSpeed = 100;
+		robot->ClawSpeed = 200;
+	}
+	else
+	{
+		robot->ClawSpeed = 0;
 	}
 
 	if (ControllerSpeed == 1) {

@@ -21,6 +21,7 @@ public:
 	void SetLED(int red, int grn, int blu);
 	//void SetController(Controller *controller);
 
+	void EStop();
 	//Read Only Items
 
 	float GetEncDriveRight();
@@ -69,6 +70,7 @@ private:
 	Servo serClaw;
 
 
+
 	Encoder encDriveRight;
 	Encoder encDriveLeft;
 
@@ -77,7 +79,8 @@ private:
 	float prevDriveLeftFrontSpeed;
 	float prevDriveLeftRearSpeed;
 	float prevLiftSpeed;
-
+        
+        
 	//Private Vars
 
 	int _encDriveRight;

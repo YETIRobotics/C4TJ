@@ -35,8 +35,9 @@ Robot::Robot()
 }
 
 void Robot::init() {
-
+	
 	pinMode(_potPin, INPUT);
+        pinMode(13, INPUT);
 }
 
 void Robot::TaskUSB()
@@ -53,6 +54,13 @@ void Robot::Read() {
 	_encDriveLeft = encDriveLeft.read();
 
 	_potLift = analogRead(_potPin);
+
+	
+	
+	if(digitalRead(13) == 0){
+		EStop();
+	}
+	
 
 
 	//sensors_event_t event; 
@@ -132,8 +140,28 @@ float Robot::torqueLimit(float prevVal, float curVal, int torqueLim)
 	return retVal;
 }
 
-void Robot::Write() {
+void Robot::EStop(){
 
+
+  mc.setMotorSpeed(0, 0);
+  mc.setMotorSpeed(1, 0);
+  mc.setMotorSpeed(2, 0);
+  mc.setMotorSpeed(3, 0);
+  mc.setMotorSpeed(4, 0);
+  mc.setMotorSpeed(5, 0);
+  mc.setMotorSpeed(6, 0);
+  mc.setMotorSpeed(7, 0);
+
+  while(true){
+    delay(5000);
+    Serial.println("STOPPED");
+  }
+  
+}
+
+void Robot::Write() {
+      
+         
 	//DriveRightSpeed
 	if (DriveRightFrontSpeed < -400)
 		DriveRightFrontSpeed = -400;
