@@ -29,9 +29,6 @@ Robot::Robot()
 
 	TorqueLimitDrive = 0;
 	TorqueLimitLift = 0;
-
-	//LiftPotVal = 0;
-
 }
 
 void Robot::init() {
@@ -47,35 +44,15 @@ void Robot::TaskUSB()
 
 void Robot::Read() {
 
-
-
-
 	_encDriveRight = encDriveRight.read();
 	_encDriveLeft = encDriveLeft.read();
 
 	_potLift = analogRead(_potPin);
-
-	
 	
 	if(digitalRead(13) == 0){
 		EStop();
 	}
 	
-
-
-	//sensors_event_t event; 
-	//gyroLift.getEvent(&event);
-
-	/*
-	Serial.print("X: g
-	Serial.print(event.orientation.x, 4);
-	Serial.print("\tY: ");
-	Serial.print(event.orientation.y, 4);
-	Serial.print("\tZ: ");
-	Serial.print(event.orientation.z, 4);
-	Serial.println("");
-	*/
-
 
 }
 void Robot::SetEncDriveRight(int inVal)
@@ -232,17 +209,6 @@ void Robot::Write() {
 	}
 
 
-	//prevLiftSpeed = torqueLimit(prevLiftSpeed, LiftSpeed, TorqueLimitLift);
-
-
-
-	/* Serial.print(LiftLeftSpeed);
-	Serial.print("\t");
-	*/
-
-	//Serial.print(LiftRightSpeed);
-	//Serial.print("\t");
-
 	//IntakeSpeed
 
 	if (ClawSpeed < -400)
@@ -254,14 +220,7 @@ void Robot::Write() {
 
 	mc.setMotorSpeed(2, ClawSpeed);
 
-
 	mc.setMotorSpeed(6, 0);
-
-
-	//Expect 0-255
-	/*float LEDRed;
-	float LEDBlue;
-	float LEDGreen;*/
 
 }
 
@@ -270,12 +229,10 @@ int Robot::convertToServo(float inVal)
 
 	if (inVal > 0)
 	{
-		//Serial.println(((inVal/400 * (_servoMax - _servoNeut)) + _servoNeut));
 		return ((inVal / 400 * (_servoMax - _servoNeut)) + _servoNeut);
 	}
 	else if (inVal < 0)
 	{
-		//Serial.println(((inVal/400 * (_servoNeut - _servoMin)) + _servoNeut));
 		return ((inVal / 400 * (_servoNeut - _servoMin)) + _servoNeut);
 	}
 	else
@@ -304,5 +261,3 @@ float Robot::GetGyroDegrees() {
 float Robot::GetGyroAbsolute() {
 	return _gyroDegrees;
 }
-
-

@@ -19,8 +19,6 @@ public:
 	void Write();
 	void init();
 	void SetLED(int red, int grn, int blu);
-	//void SetController(Controller *controller);
-
 	void EStop();
 	//Read Only Items
 
@@ -42,8 +40,6 @@ public:
 	float DriveLeftRearSpeed;
 	float LiftSpeed;
 	float ClawSpeed;
-	//float ArmSpeed;
-	//float ClawPower;
 
 	//Expect 0-255
 	int LEDRed;
@@ -56,8 +52,6 @@ public:
 	int startMillis = 0;
 
 	bool setMillisTime = true;
-
-	// int LiftPotVal = 0;
 
 	USB Usb;
 
@@ -120,5 +114,3 @@ private:
 };
 
 #endif
-
-

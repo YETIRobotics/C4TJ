@@ -4,13 +4,13 @@
 
 // Constructors ////////////////////////////////////////////////////////////////
 Controller::Controller()
-:Xbox(&dummyXboxPointer)
+	:Xbox(&dummyXboxPointer)
 {
 
 }
 
 Controller::Controller(USB *p)
-: Xbox(p)
+	: Xbox(p)
 {
 	LeftJoystickY = 0.0;
 	LeftJoystickX = 0.0;
@@ -21,7 +21,7 @@ Controller::Controller(USB *p)
 	DPadLeftRight = 0;
 	APress = 0;
 	YPress = 0;
-        StartButton = 0;
+	StartButton = 0;
 }
 
 void Controller::Task()
@@ -36,7 +36,7 @@ void Controller::Task()
 	APress = 0;
 	YPress = 0;
 	DPadLeftRight = 0;
-        StartButton = 0;
+	StartButton = 0;
 
 	//This is where you update controller items.
 	if (Xbox.XboxReceiverConnected)
@@ -104,17 +104,17 @@ void Controller::Task()
 					YPress = 1;
 				}
 
-				if (Xbox.getButtonPress(A, i)){
-					
+				if (Xbox.getButtonPress(A, i)) {
+
 				}
 
 
 
 				if (Xbox.getButtonPress(A, i))
 				{
-  					APress = 1;
+					APress = 1;
 				}
-                                if (Xbox.getButtonClick(START, i))
+				if (Xbox.getButtonClick(START, i))
 				{
 					StartButton = 1;
 				}
@@ -142,5 +142,3 @@ void Controller::Task()
 		}
 	}
 }
-
-

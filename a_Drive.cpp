@@ -172,10 +172,6 @@ void Drive::Task()
 		//Time for heading correction
 		//You will get -100 - 100 from PID for correction.
 
-
-
-		//driveLeftSetPoint = driveLeftCurPos - correctionVal;
-		//driveRightSetPoint = driveRightCurPos - correctionVal;
 	}
 	else {
 		if (abs(driveSetPoint - driveCurPos) > drivePIDTolerence && drivePID.GetMode() == AUTOMATIC)
@@ -206,5 +202,3 @@ void Drive::Task()
 	}
 
 }
-
-

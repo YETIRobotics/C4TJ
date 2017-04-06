@@ -1,4 +1,3 @@
-//a
 
 //Indirectly Used Library Includes
 #include "XBOXRECV.h"
@@ -41,10 +40,6 @@ bool _pauseForPID = false;
 const int _maxAutonomousDuration = 60000;
 
 unsigned long serialTime;
-/*
-double Setpoint, Input, Output;
-PID myPID;
-*/
 
 void setup() {
 	Serial.begin(115200);
@@ -66,8 +61,6 @@ void setup() {
 	Lift.init();
 	Drive.init();
 
-	//Robot.SetLED(255, 0, 0); //Set LEDs to white
-
 	timer.setInterval(1, taskController);
 
 	//gyro can only refresh every 10ms. Setting to 20 to be nice!
@@ -77,7 +70,6 @@ void setup() {
 
 	timer.setInterval(100, SerialOutput);
 
-	//timer.setInterval(250, blink);
 
 }
 
@@ -139,54 +131,13 @@ void runStuff()
 
 	Robot.Write();
 
-	 SerialReceiveMove();
+	SerialReceiveMove();
 
-	 /*
-
-	 Serial.print(Robot.GetEncDriveLeft());
-	 Serial.print("\t");
-	 Serial.print(Robot.GetEncDriveRight());
-	 Serial.print("\t");
-	 Serial.print(Robot.GetEncLiftLeft());
-	 Serial.print("\t");
-	 Serial.print(Robot.GetEncLiftRight());
-	 Serial.print("\t");
-	 Serial.println(Robot.GetEncClaw());
-
-   */
-   /* Serial.print("LLiftI: ");
-	Serial.print(digitalRead(19));
-	Serial.print("\t LLiftD: ");
-	Serial.print(digitalRead(29));
-	Serial.print("\t RDriveI: ");
-	Serial.print(digitalRead(3));
-	Serial.print("\t RDriveD: ");
-	Serial.println(digitalRead(23)); */
-
-
-
-
-
-
-	/*
-	  if(millis()>serialTime)
-	  {
-		myPID = Drive.drivePID;
-		Setpoint = Drive.driveSetPoint;
-		Input = Drive.driveCurPos;
-		Output = Drive.drivePIDOut;
-
-		SerialReceive();
-		SerialSend();
-		serialTime+=500;
-	  }
-	*/
 	if (_autoRunning)
 	{
 		switch (_autoProgNum)
 		{
 		case 1:
-			//autonomousSkills();
 			autonomousMatch();
 
 		default:
@@ -194,28 +145,12 @@ void runStuff()
 		}
 		if (!_pauseForPID)
 			_autoInterval = _autoInterval + 20;
-
-		//Safety switch in case forgot to call autoStop
-		if (_autoInterval > _maxAutonomousDuration)
-		{
-			//autoStop();
-		}
 	}
-
-
-	//Grab Serial Input
-
 
 }
 
 void loop() {
-	//put this here to read encoders as fast as possible.
-	
-
 	timer.run();
-
-
-
 }
 
 
@@ -224,17 +159,14 @@ bool stop = false;
 
 void MapRobot()
 {
-	//Serial.println(Robot.GetGyroDegrees());
 	if (!_autoRunning) {
 		Drive.LeftControllerSpeedY = Controller.LeftJoystickY;
 		Drive.LeftControllerSpeedX = Controller.LeftJoystickX;
 		Drive.RightControllerSpeedY = Controller.RightJoystickY;
 		Drive.RightControllerSpeedX = Controller.RightJoystickX;
 
-		//if(Controller.TriggerAggregate != 0){
-		  //Lift.LiftTo(0);
 		Lift.ControllerSpeed = Controller.TriggerAggregate;
-		//}
+
 
 
 		switch (Controller.DPadLeftRight) {
@@ -299,11 +231,7 @@ void MapRobot()
 				}
 			}
 		}
-		else
-		{
-			//autoStop();
-			//stop = true;
-		}
+
 	}
 
 }
@@ -336,11 +264,8 @@ void autoStart()
 void autonomousMatch()
 {
 	if (!stop) {
-
-		// Serial.println(_autoInterval);
 		switch (_autoInterval)
 		{
-
 		case 0:
 			Lift.LiftTo(790);
 			break;
@@ -350,7 +275,7 @@ void autonomousMatch()
 		case 1000:
 			Claw.Open();
 			break;
-		case 1500-1000:
+		case 1500 - 1000:
 			Drive.Move(1600);
 			break;
 		case 3500 - 1000:
@@ -374,7 +299,7 @@ void autonomousMatch()
 			Lift.LiftTo(790);
 			break;
 		case 10600 - 1500:
-			Drive.Turn(-100+35);
+			Drive.Turn(-100 + 35);
 			break;
 		case 12200 - 2000:
 			Drive.Move(800);
@@ -410,7 +335,7 @@ void autonomousMatch()
 		case 23900 - 5400:
 			Lift.LiftTo(790);
 			Drive.Turn(-170);
-			break;		
+			break;
 		case 26900 - 6400:
 			Drive.Move(700);
 			break;
@@ -428,8 +353,6 @@ void autonomousMatch()
 void autonomousSkills()
 {
 	if (!stop) {
-
-		// Serial.println(_autoInterval);
 		switch (_autoInterval)
 		{
 
@@ -456,7 +379,7 @@ void autonomousSkills()
 			break;
 		case 9700:
 			Claw.Close();
-		
+
 		case 12000:
 			autoStop();
 			break;
@@ -471,139 +394,130 @@ void SerialReceiveMove()
 
 
 
-///////////////////////////////////
+	///////////////////////////////////
 
-  String readString, funcName;
-  int funcVal;
+	String readString, funcName;
+	int funcVal;
 
-  readString="";
+	readString = "";
 
-  while (Serial.available()) {
-    delay(10);  //delay to allow buffer to fill 
-    if (Serial.available() >0) {
-      char c = Serial.read();  //gets one byte from serial buffer
-      readString += c; //makes the string readString
-  } 
-}
+	while (Serial.available()) {
+		delay(10);  //delay to allow buffer to fill 
+		if (Serial.available() > 0) {
+			char c = Serial.read();  //gets one byte from serial buffer
+			readString += c; //makes the string readString
+		}
+	}
 
-if (readString.length() >0) {
-      Serial.println(readString); //see what was received
-      
-      // expect a string like XX #### containing the two servo positions      
-      funcName = readString.substring(0, 2); //get the first four characters
-      String tmpFuncVal = readString.substring(3, 7); //get the next four characters 
+	if (readString.length() > 0) {
+		Serial.println(readString); //see what was received
 
-	  char carray[tmpFuncVal.length() + 1]; //determine size of the array
-	  tmpFuncVal.toCharArray(carray, sizeof(carray)); //put readStringinto an array
-	  funcVal = atof(carray); //convert the array into a float
+		// expect a string like XX #### containing the two servo positions      
+		funcName = readString.substring(0, 2); //get the first four characters
+		String tmpFuncVal = readString.substring(3, 7); //get the next four characters 
 
-	  //funcVal = atof(tmpFuncVal.toCharArray());
+		char carray[tmpFuncVal.length() + 1]; //determine size of the array
+		tmpFuncVal.toCharArray(carray, sizeof(carray)); //put readStringinto an array
+		funcVal = atof(carray); //convert the array into a float
 
-	 /* char buffer[10];
-	  tmpFuncVal.toCharArray(buffer, 10);
-	  funcVal = atof(buffer);*/
+	}
+	Serial.flush();
 
-	  // funcVal = tmpFuncVal.toFloat();
+	//LIFT
+	if (funcName == "LT")
+	{
+		Lift.LiftTo(funcVal);
+	}
+	else if (funcName == "LP")
+	{
+		Lift.SetLiftKP(funcVal);
+	}
+	else if (funcName == "LI")
+	{
+		Lift.SetLiftKI(funcVal);
+	}
+	else if (funcName == "LD")
+	{
+		Lift.SetLiftKD(funcVal);
+	}
+	else if (funcName == "LO") //Torque Limit Lift
+	{
+		Lift.SetTorqueLimit(funcVal);
+	}
 
+	//DRIVE
+	else if (funcName == "DT")
+	{
+		Drive.Turn(funcVal);
+	}
+	else if (funcName == "DM")
+	{
+		Drive.Move(funcVal);
+		Serial.println(funcVal);
+	}
+	else if (funcName == "DO") //Torque Limit Drive
+	{
+		Drive.SetTorqueLimit(funcVal);
+	}  // DP DI DD TP TI TD HP HI HD
+	else if (funcName == "DP")
+	{
+		Drive.SetDriveKP(funcVal);
+	}
+	else if (funcName == "DI")
+	{
+		Drive.SetDriveKI(funcVal);
+	}
+	else if (funcName == "DD")
+	{
+		Drive.SetDriveKD(funcVal);
+	}
+	else if (funcName == "TP")
+	{
+		Drive.SetTurnKP(funcVal);
+	}
+	else if (funcName == "TI")
+	{
+		Drive.SetTurnKI(funcVal);
+	}
+	else if (funcName == "TD")
+	{
+		Drive.SetTurnKD(funcVal);
+	}
+	else if (funcName == "HP")
+	{
+		Drive.SetHLKP(funcVal);
+	}
+	else if (funcName == "HI")
+	{
+		Drive.SetHLKI(funcVal);
+	}
+	else if (funcName == "HD")
+	{
+		Drive.SetHLKD(funcVal);
+	}
 
-  } 
-  Serial.flush();  
+	//CLAW
+	else if (funcName == "CC")
+	{
+		Claw.Clamp();
+	}
+	else if (funcName == "CO")
+	{
+		Claw.Open();
+	}
+	else if (funcName == "CD")
+	{
+		Claw.Deploy();
+	}
+	else if (funcName == "CM") {
+		Claw.Move(400, funcVal);
+	}
 
-//LIFT
-  if (funcName == "LT")
-  {
-      Lift.LiftTo(funcVal);
-  }
-  else if (funcName == "LP")
-  {
-    Lift.SetLiftKP(funcVal);
-  }
-  else if (funcName == "LI")
-  {
-    Lift.SetLiftKI(funcVal);
-  }
-  else if (funcName == "LD")
-  {
-    Lift.SetLiftKD(funcVal);
-  }
-  else if (funcName == "LO") //Torque Limit Lift
-  {
-    Lift.SetTorqueLimit(funcVal);
-  }
-
-//DRIVE
-  else if (funcName == "DT")
-  {
-      Drive.Turn(funcVal);
-  }
-  else if (funcName == "DM")
-  {
-      Drive.Move(funcVal);
-	  Serial.println(funcVal);
-  }
-  else if (funcName == "DO") //Torque Limit Drive
-  {
-    Drive.SetTorqueLimit(funcVal);
-  }  // DP DI DD TP TI TD HP HI HD
-  else if (funcName == "DP")
-  {
-    Drive.SetDriveKP(funcVal);
-  }
-  else if (funcName == "DI")
-  {
-    Drive.SetDriveKI(funcVal);
-  }
-  else if (funcName == "DD")
-  {
-    Drive.SetDriveKD(funcVal);
-  }
-  else if (funcName == "TP")
-  {
-    Drive.SetTurnKP(funcVal);
-  }
-  else if (funcName == "TI")
-  {
-    Drive.SetTurnKI(funcVal);
-  }
-  else if (funcName == "TD")
-  {
-    Drive.SetTurnKD(funcVal);
-  }
-  else if (funcName == "HP")
-  {
-    Drive.SetHLKP(funcVal);
-  }
-  else if (funcName == "HI")
-  {
-    Drive.SetHLKI(funcVal);
-  }
-  else if (funcName == "HD")
-  {
-    Drive.SetHLKD(funcVal);
-  }
-
-//CLAW
-  else if (funcName == "CC")
-  {
-      Claw.Clamp();
-  }
-  else if (funcName == "CO")
-  {
-      Claw.Open();
-  }
-  else if (funcName == "CD")
-  {
-	  Claw.Deploy();
-  }
-  else if (funcName == "CM") {
-	  Claw.Move(400, funcVal);
-  }
-
-//OTHER
-  else if (funcName == "AT")
-  {
-    autonomousMatch();
-  }
+	//OTHER
+	else if (funcName == "AT")
+	{
+		autonomousMatch();
+	}
 
 
 }
